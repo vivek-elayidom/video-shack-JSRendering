@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="assets/libraries/jquery-3.5.0.min.js"></script>
+    <script src="assets/libraries/popper.min.js"></script>
+    <script src="assets/libraries/bootstrap.min.js"></script>
+    <script src="assets/libraries/whammy.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/2.0.2/anime.min.js"></script>
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+
+
+    <style>
+        body {
+            background: white;
+            color: #CCCCCC;
+        }
+        
+        .ml3 {
+            font-weight: 900;
+            font-size: 3.5em;
+        }
+        
+        .video {
+            position: absolute;
+            width: 95%;
+            height: auto;
+            margin-left: 1px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .audio {
+            display: none;
+            ;
+            width: 30%;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body style="width: 99%;">
+    <div class="row" id="contentArea">
+        <div class="col-sm-2">
+            <button id="playBtn" onclick="playMovie()">Canvas Play</button>
+            <button id="record">Start Recording</button>
+            <button id="play">Play Recorded</button>
+            <button id="download">Download</button>
+            <p><span id="errorMsg">Error Message if any</span></p>
+
+        </div>
+        <div class="col-sm-9 ">
+            <video class="video" id="video1" src="videos/final/girl_beach_happy.mp4 " muted loop></video>
+            <canvas id="stage"></canvas>
+        </div>
+        <div class="col-sm-1">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-6">
+            <video id="recorded"></video>
+        </div>
+        <div class="col-sm-3"></div>
+    </div>
+</body>
+<script>
+    function playMovie() {
+        var video = document.getElementById('video1');
+        video.play();
+    }
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var v = document.getElementById('video1');
+        var canvas = document.getElementById('stage');
+        var context = canvas.getContext('2d');
+
+        var cw = Math.floor(canvas.clientWidth * 2);
+        var ch = Math.floor(canvas.clientHeight * 2);
+
+        canvas.width = cw;
+        canvas.height = ch;
+
+        v.addEventListener('play', function() {
+            draw(this, context, cw, ch);
+        }, false);
+
+    }, false);
+
+
+    function draw(v, c, w, h) {
+        if (v.paused || v.ended) return false;
+        c.drawImage(v, 0, 0, w, h);
+        setTimeout(draw, 20, v, c, w, h);
+
+    }
+
+    function record() {
+
+        var canvas = document.getElementById('canvas');
+        const stream = canvas.captureStream();
+
+
+
+    }
+
+    function handleSourceOpen(event) {
+        console.log('MediaSource opened');
+        sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp8"');
+        console.log('Source buffer: ', sourceBuffer);
+    }
+
+    function handleDataAvailable(event) {
+        console.log('handleDataAvailable', event);
+        if (event.data && event.data.size > 0) {
+            recordedBlobs.push(event.data);
+        }
+    }
+
+    function startRecording() {
+        recordedBlobs = [];
+        let options = {
+            mimeType: 'video/webm;codecs=vp9'
+        };
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+            console.error(`${options.mimeType} is not Supported`);
+            errorMsgElement.innerHTML = `${options.mimeType} is not Supported`;
+            options = {
+                mimeType: 'video/webm;codecs=vp8'
+            };
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                console.error(`${options.mimeType} is not Supported`);
+                errorMsgElement.innerHTML = `${options.mimeType} is not Supported`;
+                options = {
+                    mimeType: 'video/webm'
+                };
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                    console.error(`${options.mimeType} is not Supported`);
+                    errorMsgElement.innerHTML = `${options.mimeType} is not Supported`;
+                    options = {
+                        mimeType: ''
+                    };
+                }
+            }
+        }
+
+        try {
+            mediaRecorder = new MediaRecorder(window.stream, options);
+        } catch (e) {
+            console.error('Exception while creating MediaRecorder:', e);
+            errorMsgElement.innerHTML = `Exception while creating MediaRecorder: ${JSON.stringify(e)}`;
+            return;
+        }
+        console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
+        recordButton.textContent = 'Stop Recording';
+        playButton.disabled = true;
+        downloadButton.disabled = true;
+        mediaRecorder.onstop = (event) => {
+            console.log('Recorder stopped: ', event);
+            console.log('Recorded Blobs: ', recordedBlobs);
+        };
+        mediaRecorder.ondataavailable = handleDataAvailable;
+        mediaRecorder.start(10); // collect 10ms of data
+        console.log('MediaRecorder started', mediaRecorder);
+
+    }
+
+    function stopRecording() {
+        mediaRecorder.stop();
+        console.log('Recorded Blobs: ', recordedBlobs);
+        video.controls = true;
+    }
+
+    function play() {
+        video.play();
+    }
+
+    function download() {
+        const blob = new Blob(recordedBlobs, {
+            type: 'video/webm'
+        });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'test.webm';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }, 100);
+    }
+</script>
+<script src="assets/customjs/stage.js"></script>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="assets/libraries/jquery-3.5.0.min.js"></script>
+    <script src="assets/libraries/popper.min.js"></script>
+    <script src="assets/libraries/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+
+    <style>
+        body {
+            background: black;
+            color: #CCCCCC;
+        }
+        
+        .video {
+            position: absolute;
+            width: 95%;
+            height: auto;
+            margin-left: 1px;
+            margin-top: 3px;
+        }
+    </style>
+</head>
+
+<body style="width: 99%;">
+
+    <div class="row" id="controlBar">
+        <div class="col-sm-12" style="background-color:lightsteelblue; height: 50px;"></div>
+    </div>
+    <div class="row" id="contentArea">
+        <div class="col-sm-3" style="background-color: grey; height: 500px;">
+            <div class="row" style="height: 50%;background-color:darkslategrey;">
+
+            </div>
+
+        </div>
+        <div class="col-sm-8" style="background-color: lightgray; height: 500px;">
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <video class="video" id="video1" src="videos/final/girl_beach_happy.mp4" muted loop autoplay></video>
+                </div>
+                <!--div class="col-sm-6">
+                    <video class="video" id="video2" src="videos/final/skyshot_motivation.mp4" muted loop autoplay></video>
+                </div-->
+            </div>
+
+        </div>
+        <div class="col-sm-1" style="background-color: lightyellow; height: 500px;"></div>
+    </div>
+    <div class="row" id="footbarControls">
+        <div class="col-sm-3" style="background-color:lightpink;height: 50px;"></div>
+        <div class="col-sm-8" style="background-color:black;height: 50px;"></div>
+        <div class="col-sm-1" style="background-color: cadetblue; height: 50px;"></div>
+    </div>
+</body>
+<script>
+    function play() {
+        $('#video1').get(0).play();
+    }
+
+    function getRandomInt(max) {
+        return Math.floor(Math.random() * Math.floor(max));
+    }
+
+    function changeVideo() {
+        var videos = ["videos/final/girl_beach_happy.mp4", "videos/final/girl_sunset.mp4", "videos/final/skyshot_motivation.mp4", "family_beach_happy.mp4"]
+        var video = document.getElementById("video1");
+        console.log("Video will be changed");
+        video.setAttribute('src', videos[getRandomInt(3)]);
+    }
+
+    $(document).ready(function() {
+        console.log("ready!");
+        //$('#video1').get(0).play(); 
+        //$('#video1').click();
+
+        setInterval(changeVideo, 3000);
+
+
+    });
+</script>
+
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="assets/libraries/jquery-3.5.0.min.js"></script>
+    <script src="assets/libraries/popper.min.js"></script>
+    <script src="assets/libraries/bootstrap.min.js"></script>
+    <script src="assets/libraries/whammy.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/2.0.2/anime.min.js"></script>
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+
+    <style>
+        body {
+            background: black;
+            color: #CCCCCC;
+        }
+        
+        .ml3 {
+            font-weight: 900;
+            font-size: 3.5em;
+        }
+        
+        .video {
+            position: absolute;
+            width: 95%;
+            height: auto;
+            margin-left: 1px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .audio {
+            display: none;
+            ;
+            width: 30%;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body style="width: 99%;">
+
+
+    <div class="row" id="contentArea">
+        <div class="col-sm-2">
+            <button id="playBtn" onclick="play()">Click for Render</button>
+        </div>
+        <div class="col-sm-9 ">
+
+            <video class="video " id="video1" src="videos/final/girl_beach_happy.mp4 " muted loop></video>
+            <div style="z-index: 9999; position: relative; background-color:black;">
+                <h1 id="title1" class="ml3" style="z-index: 15000; margin-top: 500px;">Its a beautiful World</h1>
+            </div>
+
+        </div>
+        <div class="col-sm-1">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12" style="display: block;">
+            <iframe src="music/silence.mp3" allow="autoplay" id="audio" style="display: none"></iframe>
+
+            <audio id="audio_player">
+                <source src="music/memory.mp3" type="audio/mp3">
+            </audio>
+            <canvas id="stage">
+
+            </canvas>
+        </div>
+    </div>
+
+</body>
+<script>
+    var videoCounter = 1;
+
+
+    function getRandomInt(max) {
+        return Math.floor(Math.random() * Math.floor(max));
+    }
+
+    function changeTitle() {
+
+        var title_strings = ["But man has made it worse", "In the age of Destiny", "Kilometers and Kilometers", "from Washington DC to America"]
+
+        $('#title1').text(title_strings[getRandomInt(3)]);
+        var textWrapper = document.querySelector('.ml3');
+        textWrapper.innerHTML = textWrapper.textContent.replace(/\S/g, "<span class='letter'>$&</span>");
+        anime.timeline({
+                loop: true
+            })
+            .add({
+                targets: '.ml3 .letter',
+                opacity: [0, 1],
+                easing: "easeInOutQuad",
+                duration: 2500,
+                delay: (el, i) => 150 * (i + 1)
+            }).add({
+                targets: '.ml3',
+                opacity: 0,
+                duration: 1000,
+                easing: "easeOutExpo",
+                delay: 1000
+            });
+
+    }
+
+    function changeVideo() {
+        videoCounter = videoCounter + 1;
+        if (videoCounter > 1) {
+            $('.row').click();
+            $('#audio_player').get(0).play();
+        }
+        var videos = [" videos/final/women_in_business.mp4 ", " videos/final/girl_beach_happy.mp4 ", "videos/final/girl_sunset.mp4 ", "videos/final/skyshot_motivation.mp4 ", "videos/final/family_beach_happy.mp4 "]
+        var title_strings = ["But man has made it worse", "In the age of Destiny", "Kilometers and Kilometers", "from Washington DC to America"]
+        var video = document.getElementById("video1");
+        console.log("Video will be changed ");
+        video.setAttribute('src', videos[getRandomInt(3)]);
+        $('#title1').text(title_strings[getRandomInt(3)]);
+
+    }
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var encoder = new Whammy.Video(15);
+        var v = document.getElementById('video1');
+        var canvas = document.getElementById('stage');
+        var context = canvas.getContext('2d');
+
+        var cw = Math.floor(canvas.clientWidth / 100);
+        var ch = Math.floor(canvas.clientHeight / 100);
+        canvas.width = cw;
+        canvas.height = ch;
+
+        v.addEventListener('play', function() {
+            draw(this, context, cw, ch);
+        }, false);
+
+        function draw(v, c, w, h) {
+            if (v.paused || v.ended) return false;
+            c.drawImage(v, 0, 0, w, h);
+            setTimeout(draw, 20, v, c, w, h);
+        }
+
+        encoder.add(canvas);
+        encoder.compile(false, function(output) {});
+
+
+
+    }, false);
+
+    function play() {
+        //$('#video1').get(0).play();
+        var vid = document.getElementById("video1");
+        vid.play();
+        setInterval(changeVideo, 3000);
+        setInterval(changeTitle, 6000);
+    }
+</script>
+
+</html>
